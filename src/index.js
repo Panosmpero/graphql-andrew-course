@@ -7,6 +7,8 @@ import { GraphQLServer } from "graphql-yoga";
 // Type definitions (schema)
 const typeDefs = `
   type Query {
+    greeting(name: String, position: String): String!
+    add(a: Float!, b: Float!): Float!
     me: User!
     post: Post!
   }
@@ -25,12 +27,30 @@ const typeDefs = `
     published: Boolean!
   }
 `;
-// type User in not Scalar so we need to access it 
-// when calling it me{} 
+// type User in not Scalar so we need to access it
+// when calling it me{}
 
 // Resolvers
+/* 
+4 arguments passed down to resolver functions
+Query: {
+  resolverFunction(parent, args, ctx, info) {
+
+  }
+}
+*/
 const resolvers = {
   Query: {
+    greeting(parent, args, ctx, info) {
+      // console.log(args);
+      return `Hello ${args.name ? args.name : "User"}, you are my favorite ${
+        args.position ? args.position : ""
+      }`;
+    },
+    add(parent, args, ctx, info) {
+      // console.log(args)
+      return args.a + args.b;
+    },
     me() {
       return {
         id: "e23e2ee2",
