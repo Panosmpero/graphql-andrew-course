@@ -7,31 +7,44 @@ import { GraphQLServer } from "graphql-yoga";
 // Type definitions (schema)
 const typeDefs = `
   type Query {
-    id: ID!
+    me: User!
+    post: Post!
+  }
+
+  type User {       
+    id: ID!         
     name: String!
-    age: Int!
-    employed: Boolean!
-    gpa: Float
+    email: String!
+    age: Int
+  }
+
+  type Post {
+    id: ID!
+    title: String!
+    body: String!
+    published: Boolean!
   }
 `;
+// type User in not Scalar so we need to access it 
+// when calling it me{} 
 
 // Resolvers
 const resolvers = {
   Query: {
-    id() {
-      return "34r3r34f3";
+    me() {
+      return {
+        id: "e23e2ee2",
+        name: "beros",
+        email: "beros@beros.com",
+      };
     },
-    name() {
-      return "Beros!";
-    },
-    age() {
-      return 34;
-    },
-    employed() {
-      return false;
-    },
-    gpa() {
-      return 12.14; // can return null as we did not put ! on typeDefs
+    post() {
+      return {
+        id: "e23e2122321313212ee2",
+        title: "GraphQL",
+        body: "It's good!",
+        published: false,
+      };
     },
   },
 };
