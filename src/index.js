@@ -31,7 +31,7 @@ const resolvers = {
       return false;
     },
     gpa() {
-      return 2.14; // can return null as we did not put ! on typeDefs
+      return 12.14; // can return null as we did not put ! on typeDefs
     },
   },
 };
