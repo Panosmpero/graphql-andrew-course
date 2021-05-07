@@ -1,14 +1,86 @@
 import { GraphQLServer } from "graphql-yoga";
 
-// Scalar types
-// ====================
 // String, Boolean, Int, Float, ID
+
+// mock data
+const users = [
+  {
+    id: 1,
+    name: "Panos",
+    email: "panos@example.com",
+    age: 34,
+  },
+  {
+    id: 2,
+    name: "Mike",
+    email: "mike@example.com",
+    age: 44,
+  },
+  {
+    id: 3,
+    name: "Kate",
+    email: "kate@example.com",
+    age: 24,
+  },
+];
+
+const posts = [
+  {
+    id: 1,
+    title: "Test title 1",
+    body: "this is a post body",
+    published: false,
+    author: 1,
+  },
+  {
+    id: 2,
+    title: "This is a title",
+    body: "this is a post body",
+    published: false,
+    author: 1,
+  },
+  {
+    id: 3,
+    title: "Graphql",
+    body: "Is good",
+    published: true,
+    author: 2,
+  },
+];
+
+const comments = [
+  {
+    id: 1,
+    text: "this is a comment",
+    author: 1,
+    post: 1,
+  },
+  {
+    id: 2,
+    text: "another one",
+    author: 1,
+    post: 2,
+  },
+  {
+    id: 3,
+    text: "third random",
+    author: 2,
+    post: 3,
+  },
+  {
+    id: 4,
+    text: "just some letters",
+    author: 3,
+    post: 3,
+  },
+];
 
 // Type definitions (schema)
 const typeDefs = `
   type Query {
-    greeting(name: String, position: String): String!
-    add(a: Float!, b: Float!): Float!
+    users(query: String): [User!]!
+    posts(query: String): [Post!]!
+    comments: [Comment!]!
     me: User!
     post: Post!
   }
@@ -18,6 +90,8 @@ const typeDefs = `
     name: String!
     email: String!
     age: Int
+    posts: [Post!]!
+    comments: [Comment!]!
   }
 
   type Post {
@@ -25,31 +99,36 @@ const typeDefs = `
     title: String!
     body: String!
     published: Boolean!
+    author: User!
+    comments: [Comment!]!
+  }
+
+  type Comment {
+    id: ID!
+    text: String!
+    author: User!
+    post: Post!
   }
 `;
-// type User in not Scalar so we need to access it
-// when calling it me{}
 
-// Resolvers
-/* 
-4 arguments passed down to resolver functions
-Query: {
-  resolverFunction(parent, args, ctx, info) {
-
-  }
-}
-*/
 const resolvers = {
   Query: {
-    greeting(parent, args, ctx, info) {
-      // console.log(args);
-      return `Hello ${args.name ? args.name : "User"}, you are my favorite ${
-        args.position ? args.position : ""
-      }`;
+    users: (parent, args, ctx, info) => {
+      if (!args.query) return users;
+      return users.filter((user) =>
+        user.name.toLowerCase().includes(args.query.toLowerCase())
+      );
     },
-    add(parent, args, ctx, info) {
-      // console.log(args)
-      return args.a + args.b;
+    posts: (parent, args, ctx, info) => {
+      if (!args.query) return posts;
+      return posts.filter(
+        (posts) =>
+          posts.title.toLowerCase().includes(args.query.toLowerCase()) ||
+          posts.body.toLowerCase().includes(args.query.toLowerCase())
+      );
+    },
+    comments: (parent, args, ctx, info) => {
+      return comments;
     },
     me() {
       return {
@@ -67,6 +146,31 @@ const resolvers = {
       };
     },
   },
+  Post: {
+    author: (parent, args, ctx, info) => {
+      // in parent lives Post which was called first
+      return users.find((user) => user.id === parent.author);
+    },
+    comments: (parent, args, ctx, info) => {
+      return comments.filter((comment) => comment.post === parent.id);
+    },
+  },
+  User: {
+    posts: (parent, args, ctx, info) => {
+      return posts.filter((post) => post.author === parent.id);
+    },
+    comments: (parent, args, ctx, info) => {
+      return comments.filter((comment) => comment.author === parent.id);
+    },
+  },
+  Comment: {
+    author: (parent, args, ctx, info) => {
+      return users.find((user) => user.id === parent.author);
+    },
+    post: (parent, args, ctx, info) => {
+      return posts.find((post) => post.id === parent.post);
+    },
+  },
 };
 
 const server = new GraphQLServer({
@@ -74,4 +178,4 @@ const server = new GraphQLServer({
   resolvers: resolvers,
 });
 
-server.start(() => console.log("Server running!"));
+server.start(({ port }) => console.log(`Server running on port: ${port}`));
