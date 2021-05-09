@@ -6,19 +6,19 @@ import uuidv4 from "uuid";
 // mock data
 const users = [
   {
-    id: 1,
+    id: "1",
     name: "Panos",
     email: "panos@example.com",
     age: 34,
   },
   {
-    id: 2,
+    id: "2",
     name: "Mike",
     email: "mike@example.com",
     age: 44,
   },
   {
-    id: 3,
+    id: "3",
     name: "Kate",
     email: "kate@example.com",
     age: 24,
@@ -27,61 +27,61 @@ const users = [
 
 const posts = [
   {
-    id: 1,
+    id: "1",
     title: "Test title 1",
     body: "this is a post body",
     published: false,
-    author: 1,
+    author: "1",
   },
   {
-    id: 2,
+    id: "2",
     title: "This is a title",
     body: "this is a post body",
     published: false,
-    author: 1,
+    author: "1",
   },
   {
-    id: 3,
+    id: "3",
     title: "Graphql",
     body: "Is good",
     published: true,
-    author: 2,
+    author: "2",
   },
 ];
 
 const comments = [
   {
-    id: 1,
+    id: "1",
     text: "this is a comment",
-    author: 1,
-    post: 1,
+    author: "1",
+    post: "1",
   },
   {
-    id: 2,
+    id: "2",
     text: "another one",
-    author: 1,
-    post: 2,
+    author: "1",
+    post: "2",
   },
   {
-    id: 3,
+    id: "3",
     text: "third random",
-    author: 2,
-    post: 3,
+    author: "2",
+    post: "3",
   },
   {
-    id: 4,
+    id: "4",
     text: "just some letters",
-    author: 3,
-    post: 3,
+    author: "3",
+    post: "3",
   },
 ];
 
 // Type definitions (schema)
 const typeDefs = `
   type Mutation {
-    createUser(name: String!, email: String!, age: Int): User!
-    createPost(title: String!, body: String!, published: Boolean!, author: ID!): Post!
-    createComment(text: String!, author: ID!, post: ID!): Comment!
+    createUser(input: UserInput): User!
+    createPost(input: PostInput): Post!
+    createComment(input: CommentInput): Comment!
   }
 
   type Query {
@@ -90,6 +90,25 @@ const typeDefs = `
     comments: [Comment!]!
     me: User!
     post: Post!
+  }
+
+  input UserInput {
+    name: String!
+    email: String!
+    age: Int
+  }
+
+  input PostInput {
+    title: String!
+    body: String!
+    published: Boolean!
+    author: ID!
+  }
+
+  input CommentInput {
+    text: String!
+    author: ID!
+    post: ID!
   }
 
   type User {       
@@ -121,33 +140,33 @@ const typeDefs = `
 const resolvers = {
   Mutation: {
     createUser: (parent, args, ctx, info) => {
-      const emailTaken = users.find((user) => user.email === args.email);
+      const emailTaken = users.find((user) => user.email === args.input.email);
       if (emailTaken) throw new Error("Email in use");
       const user = {
         id: uuidv4(),
-        ...args
+        ...args.input
       };
       users.push(user);
       return user;
     },
     createPost: (parent, args, ctx, info) => {
-      const userExists = users.find((user) => user.id === args.author);
+      const userExists = users.find((user) => user.id === args.input.author);
       if (!userExists) throw new Error("User not found");
       const post = {
         id: uuidv4(),
-        ...args
+        ...args.input
       };
       posts.push(post);
       return post;
     },
     createComment: (parent, args, ctx, info) => {
-      const userExists = users.find((user) => user.id === args.author);
-      const postExists = posts.find(post => post.id === args.post && post.published)
+      const userExists = users.find((user) => user.id === args.input.author);
+      const postExists = posts.find(post => post.id === args.input.post && post.published)
       if (!userExists) throw new Error("User not found");
       if (!postExists) throw new Error("Post not found or not published");
       const comment = {
         id: uuidv4(),
-        ...args
+        ...args.input
       };
       comments.push(comment);
       return comment;
