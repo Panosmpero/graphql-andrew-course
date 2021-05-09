@@ -48,7 +48,7 @@ export default {
     return user;
   },
 
-  createPost: (parent, args, { db }, info) => {
+  createPost: (parent, args, { db, pubsub }, info) => {
     const userExists = db.users.find((user) => user.id === args.input.author);
 
     if (!userExists) throw new Error("User not found");
@@ -58,6 +58,10 @@ export default {
       ...args.input,
     };
     db.posts.push(post);
+
+    if (args.input.published) {
+      pubsub.publish("post", { post });
+    }
 
     return post;
   },
@@ -88,7 +92,7 @@ export default {
     return post;
   },
 
-  createComment: (parent, args, { db }, info) => {
+  createComment: (parent, args, { db, pubsub }, info) => {
     const userExists = db.users.find((user) => user.id === args.input.author);
     const postExists = db.posts.find(
       (post) => post.id === args.input.post && post.published
@@ -102,6 +106,8 @@ export default {
       ...args.input,
     };
     db.comments.push(comment);
+
+    pubsub.publish(`comment ${args.input.post}`, { comment });
 
     return comment;
   },
