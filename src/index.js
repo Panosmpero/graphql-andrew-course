@@ -4,7 +4,7 @@ import uuidv4 from "uuid";
 // String, Boolean, Int, Float, ID
 
 // mock data
-const users = [
+let users = [
   {
     id: "1",
     name: "Panos",
@@ -25,7 +25,7 @@ const users = [
   },
 ];
 
-const posts = [
+let posts = [
   {
     id: "1",
     title: "Test title 1",
@@ -45,11 +45,18 @@ const posts = [
     title: "Graphql",
     body: "Is good",
     published: true,
+    author: "3",
+  },
+  {
+    id: "4",
+    title: "Post for deletion",
+    body: "Needs to be deleted",
+    published: true,
     author: "2",
   },
 ];
 
-const comments = [
+let comments = [
   {
     id: "1",
     text: "this is a comment",
@@ -74,14 +81,23 @@ const comments = [
     author: "3",
     post: "3",
   },
+  {
+    id: "5",
+    text: "another one",
+    author: "2",
+    post: "2",
+  },
 ];
 
 // Type definitions (schema)
 const typeDefs = `
   type Mutation {
     createUser(input: UserInput): User!
+    deleteUser(id: ID!): User!
     createPost(input: PostInput): Post!
+    deletePost(id: ID!): Post!
     createComment(input: CommentInput): Comment!
+    deleteComment(id: ID!): Comment!
   }
 
   type Query {
@@ -144,32 +160,70 @@ const resolvers = {
       if (emailTaken) throw new Error("Email in use");
       const user = {
         id: uuidv4(),
-        ...args.input
+        ...args.input,
       };
       users.push(user);
       return user;
+    },
+    deleteUser: (parent, args, ctx, info) => {
+      const userIndex = users.findIndex((user) => user.id === args.id);
+      if (userIndex === -1) throw new Error("User not found");
+
+      // delete user
+      const deletedUser = users.splice(userIndex, 1);
+
+      // delete Posts and Comments from that user
+      posts = posts.filter((post) => post.author !== args.id);
+
+      comments = comments.filter((comment) => comment.author !== args.id);
+
+      return deletedUser[0];
     },
     createPost: (parent, args, ctx, info) => {
       const userExists = users.find((user) => user.id === args.input.author);
       if (!userExists) throw new Error("User not found");
       const post = {
         id: uuidv4(),
-        ...args.input
+        ...args.input,
       };
       posts.push(post);
       return post;
     },
+    deletePost: (parent, args, ctx, info) => {
+      const postIndex = posts.findIndex((post) => post.id === args.id);
+      if (postIndex === -1) throw new Error("Post not found");
+
+      // delete post
+      const deletedPost = posts.splice(postIndex, 1);
+
+      // delete comments on the post
+      comments = comments.filter((comment) => comment.post !== args.id);
+
+      return deletedPost[0];
+    },
     createComment: (parent, args, ctx, info) => {
       const userExists = users.find((user) => user.id === args.input.author);
-      const postExists = posts.find(post => post.id === args.input.post && post.published)
+      const postExists = posts.find(
+        (post) => post.id === args.input.post && post.published
+      );
       if (!userExists) throw new Error("User not found");
       if (!postExists) throw new Error("Post not found or not published");
       const comment = {
         id: uuidv4(),
-        ...args.input
+        ...args.input,
       };
       comments.push(comment);
       return comment;
+    },
+    deleteComment: (parent, args, ctx, info) => {
+      const commentIndex = comments.findIndex(
+        (comment) => comment.id === args.id
+      );
+      if (commentIndex === -1) throw new Error("Comment not found");
+
+      // delete comment
+      const deletedComment = comments.splice(commentIndex, 1);
+      return deletedComment[0];
     },
   },
   Query: {
