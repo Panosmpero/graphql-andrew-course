@@ -350,7 +350,7 @@ input PostCreateInput {
   title: String!
   body: String!
   published: Boolean!
-  author: UserCreateOneWithoutPostInput!
+  author: UserCreateOneWithoutPostsInput!
   comments: CommentCreateManyWithoutPostInput
 }
 
@@ -375,7 +375,7 @@ input PostCreateWithoutCommentsInput {
   title: String!
   body: String!
   published: Boolean!
-  author: UserCreateOneWithoutPostInput!
+  author: UserCreateOneWithoutPostsInput!
 }
 
 """An edge in a connection."""
@@ -450,7 +450,7 @@ input PostUpdateInput {
   title: String
   body: String
   published: Boolean
-  author: UserUpdateOneWithoutPostInput
+  author: UserUpdateOneWithoutPostsInput
   comments: CommentUpdateManyWithoutPostInput
 }
 
@@ -482,7 +482,7 @@ input PostUpdateWithoutCommentsDataInput {
   title: String
   body: String
   published: Boolean
-  author: UserUpdateOneWithoutPostInput
+  author: UserUpdateOneWithoutPostsInput
 }
 
 input PostUpdateWithWhereUniqueWithoutAuthorInput {
@@ -672,7 +672,7 @@ type User implements Node {
   id: ID!
   name: String!
   email: String!
-  post(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post!]
+  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post!]
   comments(where: CommentWhereInput, orderBy: CommentOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Comment!]
 }
 
@@ -689,7 +689,7 @@ type UserConnection {
 input UserCreateInput {
   name: String!
   email: String!
-  post: PostCreateManyWithoutAuthorInput
+  posts: PostCreateManyWithoutAuthorInput
   comments: CommentCreateManyWithoutAuthorInput
 }
 
@@ -698,18 +698,18 @@ input UserCreateOneWithoutCommentsInput {
   connect: UserWhereUniqueInput
 }
 
-input UserCreateOneWithoutPostInput {
-  create: UserCreateWithoutPostInput
+input UserCreateOneWithoutPostsInput {
+  create: UserCreateWithoutPostsInput
   connect: UserWhereUniqueInput
 }
 
 input UserCreateWithoutCommentsInput {
   name: String!
   email: String!
-  post: PostCreateManyWithoutAuthorInput
+  posts: PostCreateManyWithoutAuthorInput
 }
 
-input UserCreateWithoutPostInput {
+input UserCreateWithoutPostsInput {
   name: String!
   email: String!
   comments: CommentCreateManyWithoutAuthorInput
@@ -783,7 +783,7 @@ input UserSubscriptionWhereInput {
 input UserUpdateInput {
   name: String
   email: String
-  post: PostUpdateManyWithoutAuthorInput
+  posts: PostUpdateManyWithoutAuthorInput
   comments: CommentUpdateManyWithoutAuthorInput
 }
 
@@ -795,21 +795,21 @@ input UserUpdateOneWithoutCommentsInput {
   upsert: UserUpsertWithoutCommentsInput
 }
 
-input UserUpdateOneWithoutPostInput {
-  create: UserCreateWithoutPostInput
+input UserUpdateOneWithoutPostsInput {
+  create: UserCreateWithoutPostsInput
   connect: UserWhereUniqueInput
   delete: Boolean
-  update: UserUpdateWithoutPostDataInput
-  upsert: UserUpsertWithoutPostInput
+  update: UserUpdateWithoutPostsDataInput
+  upsert: UserUpsertWithoutPostsInput
 }
 
 input UserUpdateWithoutCommentsDataInput {
   name: String
   email: String
-  post: PostUpdateManyWithoutAuthorInput
+  posts: PostUpdateManyWithoutAuthorInput
 }
 
-input UserUpdateWithoutPostDataInput {
+input UserUpdateWithoutPostsDataInput {
   name: String
   email: String
   comments: CommentUpdateManyWithoutAuthorInput
@@ -820,9 +820,9 @@ input UserUpsertWithoutCommentsInput {
   create: UserCreateWithoutCommentsInput!
 }
 
-input UserUpsertWithoutPostInput {
-  update: UserUpdateWithoutPostDataInput!
-  create: UserCreateWithoutPostInput!
+input UserUpsertWithoutPostsInput {
+  update: UserUpdateWithoutPostsDataInput!
+  create: UserCreateWithoutPostsInput!
 }
 
 input UserWhereInput {
@@ -954,9 +954,9 @@ input UserWhereInput {
 
   """All values not ending with the given string."""
   email_not_ends_with: String
-  post_every: PostWhereInput
-  post_some: PostWhereInput
-  post_none: PostWhereInput
+  posts_every: PostWhereInput
+  posts_some: PostWhereInput
+  posts_none: PostWhereInput
   comments_every: CommentWhereInput
   comments_some: CommentWhereInput
   comments_none: CommentWhereInput
