@@ -6,8 +6,21 @@ const prisma = new Prisma({
   endpoint: "http://localhost:4466",
 });
 
+// prisma.exists.Comment({
+//   id: "ckonlhb3p00m30981qwlpi1nw",
+//   author: {
+//     id: "ckonlest500ka09818rqutz5j"
+//   }
+// }).then(result => console.log(result))
+
 const createPostForUser = async (authorId, data) => {
   try {
+    const userExists = await prisma.exists.User({
+      id: authorId,
+    });
+
+    if (!userExists) throw new Error("User not found");
+
     const post = await prisma.mutation.createPost(
       {
         data: {
@@ -19,36 +32,33 @@ const createPostForUser = async (authorId, data) => {
           },
         },
       },
-      "{ id }"
+      "{ author { id name email posts { id title published } } }"
     );
 
-    const user = await prisma.query.user(
-      {
-        where: {
-          id: authorId,
-        },
-      },
-      "{ id name email posts { id title published } }"
-    );
-
-    return user;
+    return post.author;
   } catch (error) {
-    console.log(error);
+    throw new Error(error);
   }
 };
 
 // createPostForUser("ckonllo5v00p30981i3vzz1mt", {
-//   title: "Great success post",
+//   title: "Great success post 3",
 //   body: "Post body success?",
 //   published: true,
 // })
 //   .then((user) => {
 //     console.log(JSON.stringify(user, undefined, 2));
 //   })
-//   .catch((error) => console.log(error));
+//   .catch((error) => console.log(error.message));
 
 const updatePostForUser = async (postId, data) => {
   try {
+    const postExists = await prisma.exists.Post({
+      id: postId,
+    });
+
+    if (!postExists) throw new Error("Post not found");
+
     const post = await prisma.mutation.updatePost(
       {
         where: {
@@ -56,29 +66,20 @@ const updatePostForUser = async (postId, data) => {
         },
         data,
       },
-      "{ author { id } }"
+      "{ author { id name email posts { id title published } } }"
     );
 
-    const user = await prisma.query.user(
-      {
-        where: {
-          id: post.author.id,
-        },
-      },
-      "{ id name email posts { id title published } }"
-    );
-
-    return user;
+    return post.author;
   } catch (error) {
-    console.log(error);
+    throw new Error(error);
   }
 };
 
 // updatePostForUser("ckonlf5wu00kn0981cdykkyow", {
-//   title: "New post title updated",
+//   title: "New post title updated with error handling",
 //   published: false,
 // })
 //   .then((user) => {
 //     console.log(JSON.stringify(user, undefined, 2));
 //   })
-//   .catch((error) => console.log(error));
+//   .catch((error) => console.log(error.message));
