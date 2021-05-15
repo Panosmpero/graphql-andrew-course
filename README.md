@@ -29,3 +29,25 @@ On datamodel.graphql file
 ```
 ---
 
+set new project
+on file prisma.yml
+the default for http://localhost:4466 is:
+
+```
+endpoint: http://localhost:4466/default/default
+```
+
+you can customize such as:
+
+```
+endpoint: http://localhost:4466/[service name]/[stage name]
+```
+
+and then you run in console:
+
+```prisma deploy```
+
+we do not need to set up a new db, prisma or docker container
+
+---
+
